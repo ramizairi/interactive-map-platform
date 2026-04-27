@@ -39,6 +39,7 @@ export function AddPlaceForm({
       name: formData.get("name"),
       category: formData.get("category"),
       description: formData.get("description"),
+      address: formData.get("address"),
       longitude: formData.get("longitude"),
       latitude: formData.get("latitude"),
       images: [...uploadedImages, ...images].slice(0, 8),
@@ -91,6 +92,7 @@ export function AddPlaceForm({
         <Field name="longitude" label="Longitude" type="number" step="any" value={coordinates.longitude} readOnly />
         <Field name="latitude" label="Latitude" type="number" step="any" value={coordinates.latitude} readOnly />
       </div>
+      <Field name="address" label="Address" />
       <TextArea name="description" label="Description" rows={4} />
       <label className="block">
         <span className="mb-1.5 block text-sm font-semibold text-zinc-800 dark:text-zinc-200">Upload images</span>

@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { getSessionCookieName, getUserBySessionToken } from "@/lib/auth";
-import { approvePlaceRequest, rejectPlaceRequest } from "@/lib/place-requests";
+import {
+  approvePlaceRequest,
+  approvePlaceRequestWithVerification,
+  rejectPlaceRequest,
+  verifyPlaceRequest,
+} from "@/lib/place-requests";
 import { getMongoErrorMessage } from "@/lib/mongodb";
 
 export const runtime = "nodejs";
@@ -19,6 +24,16 @@ export async function POST(request: NextRequest) {
     if (body?.action === "approve" && body.id) {
       await approvePlaceRequest(body.id);
       return Response.json({ ok: true });
+    }
+
+    if (body?.action === "verify" && body.id) {
+      const verification = await verifyPlaceRequest(body.id);
+      return Response.json({ ok: true, verification });
+    }
+
+    if (body?.action === "ai-approve" && body.id) {
+      const verification = await approvePlaceRequestWithVerification(body.id);
+      return Response.json({ ok: true, verification });
     }
 
     if (body?.action === "reject" && body.id) {

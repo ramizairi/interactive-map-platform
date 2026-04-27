@@ -1,8 +1,10 @@
 import "server-only";
 
 import { ObjectId } from "mongodb";
+import { verifyPlaceWithGemini } from "@/lib/gemini";
+import { sendPlaceApprovedEmail } from "@/lib/mailer";
 import { getMongoDb } from "@/lib/mongodb";
-import type { PendingPlaceRequest, PublicUser } from "@/types/auth";
+import type { PendingPlaceRequest, PlaceVerification, PublicUser } from "@/types/auth";
 import type { PlaceCategory } from "@/types/places";
 import { supportedCategoryIds } from "@/config/map";
 
@@ -21,8 +23,15 @@ interface PendingPlaceDocument {
   status: "pending" | "approved" | "rejected";
   submittedBy: ObjectId;
   submittedByUsername: string;
+  aiVerification?: PlaceVerification;
   createdAt: Date;
   updatedAt: Date;
+}
+
+interface UserEmailDocument {
+  _id?: ObjectId;
+  name?: string;
+  email?: string;
 }
 
 export async function createPendingPlaceRequest(input: {
@@ -44,7 +53,7 @@ export async function createPendingPlaceRequest(input: {
 
   const db = await getMongoDb();
   const now = new Date();
-  const result = await db.collection<PendingPlaceDocument>(process.env.MONGODB_PLACE_REQUESTS_COLLECTION || "placeRequests").insertOne({
+  const requestDocument: PendingPlaceDocument = {
     name: input.name.trim().slice(0, 120),
     category,
     description: input.description?.trim().slice(0, 800) || undefined,
@@ -60,6 +69,13 @@ export async function createPendingPlaceRequest(input: {
     submittedByUsername: input.user.username,
     createdAt: now,
     updatedAt: now,
+  };
+  const result = await db
+    .collection<PendingPlaceDocument>(process.env.MONGODB_PLACE_REQUESTS_COLLECTION || "placeRequests")
+    .insertOne(requestDocument);
+
+  await verifyPlaceRequest(result.insertedId.toString()).catch((error) => {
+    console.warn(`[gemini] Pending place verification failed: ${error instanceof Error ? error.message : "unknown error"}`);
   });
 
   return result.insertedId.toString();
@@ -126,6 +142,54 @@ export async function approvePlaceRequest(id: string) {
   await db
     .collection(process.env.MONGODB_USERS_COLLECTION || "users")
     .updateOne({ _id: request.submittedBy }, { $inc: { "stats.placesAdded": 1 } });
+
+  const submitter = await db
+    .collection<UserEmailDocument>(process.env.MONGODB_USERS_COLLECTION || "users")
+    .findOne({ _id: request.submittedBy }, { projection: { name: 1, email: 1 } });
+
+  await sendPlaceApprovedEmail({
+    to: submitter?.email,
+    userName: submitter?.name || request.submittedByUsername,
+    placeName: request.name,
+  });
+}
+
+export async function verifyPlaceRequest(id: string) {
+  if (!ObjectId.isValid(id)) {
+    throw new Error("Invalid request id.");
+  }
+
+  const db = await getMongoDb();
+  const requests = db.collection<PendingPlaceDocument>(process.env.MONGODB_PLACE_REQUESTS_COLLECTION || "placeRequests");
+  const request = await requests.findOne({ _id: new ObjectId(id), status: "pending" });
+
+  if (!request) {
+    throw new Error("Pending place request not found.");
+  }
+
+  const verification = await verifyPlaceWithGemini(toPendingPlaceRequest(request));
+  await requests.updateOne(
+    { _id: request._id },
+    {
+      $set: {
+        aiVerification: verification,
+        updatedAt: new Date(),
+      },
+    },
+  );
+
+  return verification;
+}
+
+export async function approvePlaceRequestWithVerification(id: string) {
+  const verification = await verifyPlaceRequest(id);
+
+  if (verification.recommendation !== "approve") {
+    throw new Error(`Gemini recommends ${verification.recommendation}. Review the request manually before approving.`);
+  }
+
+  await approvePlaceRequest(id);
+  return verification;
 }
 
 export async function rejectPlaceRequest(id: string) {
@@ -160,6 +224,7 @@ function toPendingPlaceRequest(doc: PendingPlaceDocument): PendingPlaceRequest {
     status: doc.status,
     submittedBy: String(doc.submittedBy),
     submittedByUsername: doc.submittedByUsername,
+    aiVerification: doc.aiVerification,
     createdAt: doc.createdAt.toISOString(),
   };
 }

@@ -34,7 +34,7 @@ export function PlacePopup({ place, currentUser, onClose, onReviewAdded, onPlace
     index: 0,
   });
   const [isUploadingImages, setUploadingImages] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<{ placeId: string; message: string } | null>(null);
   const [reviewState, setReviewState] = useState<ReviewState>({
     placeId: null,
     reviews: [],
@@ -71,10 +71,6 @@ export function PlacePopup({ place, currentUser, onClose, onReviewAdded, onPlace
     return () => controller.abort();
   }, [placeId]);
 
-  useEffect(() => {
-    setUploadError(null);
-  }, [placeId]);
-
   if (!place) {
     return null;
   }
@@ -87,6 +83,7 @@ export function PlacePopup({ place, currentUser, onClose, onReviewAdded, onPlace
   const reviews = reviewState.placeId === place.id ? reviewState.reviews : [];
   const reviewsError = reviewState.placeId === place.id ? reviewState.error : null;
   const isLoadingReviews = reviewState.placeId !== place.id && !reviewsError;
+  const activeUploadError = uploadError?.placeId === place.id ? uploadError.message : null;
   const directionsUrl =
     place.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${place.location.coordinates[1]},${place.location.coordinates[0]}`;
   const detailRows = [
@@ -143,7 +140,10 @@ export function PlacePopup({ place, currentUser, onClose, onReviewAdded, onPlace
         index: Math.max(updatedPlace.images.length - uploadedUrls.length, 0),
       });
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Image upload failed.");
+      setUploadError({
+        placeId: place.id,
+        message: err instanceof Error ? err.message : "Image upload failed.",
+      });
     } finally {
       setUploadingImages(false);
       input.value = "";
@@ -229,7 +229,7 @@ export function PlacePopup({ place, currentUser, onClose, onReviewAdded, onPlace
               </Link>
             )}
           </div>
-          {uploadError ? <p className="mt-2 text-sm text-orange-700 dark:text-orange-300">{uploadError}</p> : null}
+          {activeUploadError ? <p className="mt-2 text-sm text-orange-700 dark:text-orange-300">{activeUploadError}</p> : null}
         </section>
 
         <div className="flex items-start justify-between gap-3">

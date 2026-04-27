@@ -26,7 +26,7 @@ export default async function AdminPlacesPage() {
         <header className="my-5">
           <h1 className="text-3xl font-semibold tracking-tight">Pending places</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-            Approve trusted user submissions before they appear on the public map.
+            Review user submissions with Gemini verification before they appear on the public map.
           </p>
         </header>
         <AdminModeration requests={requests} />
