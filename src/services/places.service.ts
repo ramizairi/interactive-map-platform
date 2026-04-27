@@ -46,3 +46,21 @@ export async function fetchPlaces(options: FetchPlacesOptions = {}) {
 export function findPlaceById(places: Place[], id: string) {
   return places.find((place) => place.id === id) || null;
 }
+
+export async function addPlaceImages(placeId: string, images: string[]) {
+  const response = await fetch(`/api/places/${placeId}/images`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ images }),
+  });
+  const payload = (await response.json().catch(() => null)) as { place?: Place; error?: string } | null;
+
+  if (!response.ok || !payload?.place) {
+    throw new Error(payload?.error || "Unable to add images to this place.");
+  }
+
+  return payload.place;
+}

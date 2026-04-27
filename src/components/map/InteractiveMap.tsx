@@ -337,6 +337,11 @@ export default function InteractiveMap() {
     setSelectedPlace((current) => (current?.id === placeId ? { ...current, avgRating, reviewsCount } : current));
   }
 
+  function handlePlaceUpdated(updatedPlace: Place) {
+    setPlaces((current) => current.map((place) => (place.id === updatedPlace.id ? updatedPlace : place)));
+    setSelectedPlace((current) => (current?.id === updatedPlace.id ? updatedPlace : current));
+  }
+
   function handleLockedRegionClick(region: RegionDefinition) {
     const activeMap = mapRef.current;
 
@@ -561,7 +566,13 @@ export default function InteractiveMap() {
         </div>
       ) : null}
 
-      <PlacePopup place={selectedPlace} onClose={() => setSelectedPlace(null)} onReviewAdded={handleReviewAdded} />
+      <PlacePopup
+        place={selectedPlace}
+        currentUser={currentUser}
+        onClose={() => setSelectedPlace(null)}
+        onReviewAdded={handleReviewAdded}
+        onPlaceUpdated={handlePlaceUpdated}
+      />
     </main>
   );
 }

@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import Image from "next/image";
-import { ExternalLink, MapPin, MessageSquare, Star, X } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, ImagePlus, Loader2, MapPin, MessageSquare, Star, X } from "lucide-react";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { ReviewList } from "@/components/reviews/ReviewList";
 import { RatingStars } from "@/components/reviews/RatingStars";
+import { addPlaceImages } from "@/services/places.service";
 import { createReview, fetchReviews } from "@/services/reviews.service";
+import { uploadImage } from "@/services/uploads.service";
+import type { PublicUser } from "@/types/auth";
 import type { CreateReviewInput, Place, Review } from "@/types/places";
 
 interface PlacePopupProps {
   place: Place | null;
+  currentUser: PublicUser | null;
   onClose: () => void;
   onReviewAdded: (placeId: string, avgRating: number, reviewsCount: number) => void;
+  onPlaceUpdated: (place: Place) => void;
 }
 
 interface ReviewState {
@@ -21,12 +27,14 @@ interface ReviewState {
   error: string | null;
 }
 
-export function PlacePopup({ place, onClose, onReviewAdded }: PlacePopupProps) {
+export function PlacePopup({ place, currentUser, onClose, onReviewAdded, onPlaceUpdated }: PlacePopupProps) {
   const placeId = place?.id || null;
   const [imageSelection, setImageSelection] = useState<{ placeId: string | null; index: number }>({
     placeId: null,
     index: 0,
   });
+  const [isUploadingImages, setUploadingImages] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [reviewState, setReviewState] = useState<ReviewState>({
     placeId: null,
     reviews: [],
@@ -61,6 +69,10 @@ export function PlacePopup({ place, onClose, onReviewAdded }: PlacePopupProps) {
       });
 
     return () => controller.abort();
+  }, [placeId]);
+
+  useEffect(() => {
+    setUploadError(null);
   }, [placeId]);
 
   if (!place) {
@@ -106,8 +118,40 @@ export function PlacePopup({ place, onClose, onReviewAdded }: PlacePopupProps) {
     onReviewAdded(place.id, Math.round(avgRating * 10) / 10, nextReviews.length);
   }
 
+  async function handleImageUpload(event: ChangeEvent<HTMLInputElement>) {
+    if (!place) {
+      return;
+    }
+
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []).slice(0, 4);
+
+    if (!files.length) {
+      return;
+    }
+
+    setUploadError(null);
+    setUploadingImages(true);
+
+    try {
+      const uploaded = await Promise.all(files.map((file) => uploadImage(file)));
+      const uploadedUrls = uploaded.map((image) => image.url || "").filter(Boolean);
+      const updatedPlace = await addPlaceImages(place.id, uploadedUrls);
+      onPlaceUpdated(updatedPlace);
+      setImageSelection({
+        placeId: updatedPlace.id,
+        index: Math.max(updatedPlace.images.length - uploadedUrls.length, 0),
+      });
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Image upload failed.");
+    } finally {
+      setUploadingImages(false);
+      input.value = "";
+    }
+  }
+
   return (
-    <aside className="absolute inset-x-3 bottom-3 z-30 max-h-[76vh] overflow-hidden rounded-lg border border-black/10 bg-white/88 shadow-[0_24px_70px_rgba(15,23,42,0.24)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/88 md:inset-x-auto md:bottom-4 md:right-4 md:top-4 md:flex md:w-[410px] md:max-h-none md:flex-col">
+    <aside className="absolute inset-x-3 bottom-3 z-30 max-h-[76vh] overflow-hidden rounded-lg border border-black/10 bg-white/88 shadow-[0_24px_70px_rgba(15,23,42,0.24)] backdrop-blur-2xl dark:border-white/10 dark:bg-zinc-950/88 md:inset-x-auto md:bottom-4 md:right-4 md:top-[136px] md:flex md:w-[410px] md:max-h-none md:flex-col lg:w-[430px]">
       <div className="relative h-40 overflow-hidden bg-zinc-100 dark:bg-zinc-900 md:h-48">
         {heroImage ? (
           <Image src={heroImage} alt="" fill sizes="(min-width: 768px) 400px, 100vw" unoptimized className="object-cover" />
@@ -156,6 +200,37 @@ export function PlacePopup({ place, onClose, onReviewAdded }: PlacePopupProps) {
             })}
           </div>
         ) : null}
+
+        <section className="mb-4 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-white/5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              <ImagePlus size={16} />
+              Photos
+            </h3>
+            {currentUser ? (
+              <label className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200">
+                {isUploadingImages ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} />}
+                {isUploadingImages ? "Uploading" : "Upload"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={isUploadingImages}
+                  onChange={handleImageUpload}
+                  className="sr-only"
+                />
+              </label>
+            ) : (
+              <Link
+                href="/signin"
+                className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-200 bg-white px-3 text-sm font-semibold text-zinc-900 transition hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10"
+              >
+                Sign in
+              </Link>
+            )}
+          </div>
+          {uploadError ? <p className="mt-2 text-sm text-orange-700 dark:text-orange-300">{uploadError}</p> : null}
+        </section>
 
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
