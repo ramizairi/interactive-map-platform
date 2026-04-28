@@ -1,6 +1,6 @@
 "use client";
 
-import { Hammer, Hotel, Sparkles, Sprout, Store, Utensils, type LucideIcon } from "lucide-react";
+import { Coffee, Hammer, Hotel, Landmark, MoreHorizontal, ShoppingBag, Sparkles, Sprout, Store, Utensils, Waves, type LucideIcon } from "lucide-react";
 import { mapConfig, type CategoryDefinition } from "@/config/map";
 
 const icons: Record<CategoryDefinition["icon"], LucideIcon> = {
@@ -10,6 +10,11 @@ const icons: Record<CategoryDefinition["icon"], LucideIcon> = {
   Store,
   Sprout,
   Hammer,
+  Coffee,
+  Landmark,
+  ShoppingBag,
+  Waves,
+  MoreHorizontal,
 };
 
 interface CategoryFilterProps {

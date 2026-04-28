@@ -10,7 +10,12 @@ export interface CategoryDefinition {
     | "Utensils"
     | "Store"
     | "Sprout"
-    | "Hammer";
+    | "Hammer"
+    | "Coffee"
+    | "Landmark"
+    | "ShoppingBag"
+    | "Waves"
+    | "MoreHorizontal";
   color: string;
   mapIcon: string;
 }
@@ -45,10 +50,15 @@ export const mapConfig = {
   categories: [
     { id: "all", label: "All", icon: "Sparkles", color: brand.colors.accent, mapIcon: "marker-15" },
     { id: "restaurant", label: "Restaurants", icon: "Utensils", color: brand.markerStyles.restaurant, mapIcon: "restaurant-15" },
+    { id: "cafe", label: "Cafés", icon: "Coffee", color: brand.markerStyles.restaurant, mapIcon: "cafe-15" },
     { id: "market", label: "Markets", icon: "Store", color: brand.markerStyles.market, mapIcon: "shop-15" },
     { id: "producer", label: "Producers", icon: "Sprout", color: brand.markerStyles.producer, mapIcon: "marker-15" },
     { id: "artisan", label: "Artisans", icon: "Hammer", color: brand.markerStyles.artisan, mapIcon: "shop-15" },
     { id: "hotel", label: "Hotels", icon: "Hotel", color: brand.markerStyles.hotel, mapIcon: "lodging-15" },
+    { id: "attraction", label: "Attractions", icon: "Landmark", color: brand.colors.accent, mapIcon: "attraction-15" },
+    { id: "shopping", label: "Shopping", icon: "ShoppingBag", color: brand.markerStyles.market, mapIcon: "shop-15" },
+    { id: "beach", label: "Beaches", icon: "Waves", color: brand.colors.accent, mapIcon: "beach-15" },
+    { id: "other", label: "Other", icon: "MoreHorizontal", color: brand.colors.accent, mapIcon: "marker-15" },
   ] satisfies CategoryDefinition[],
   regions: [
     {
