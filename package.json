@@ -1,0 +1,33 @@
+{
+  "name": "map",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:seed:capbon": "node scripts/seed-capbon-guide.mjs"
+  },
+  "dependencies": {
+    "@types/nodemailer": "^8.0.0",
+    "lucide-react": "^1.11.0",
+    "mapbox-gl": "^3.22.0",
+    "mongodb": "^7.2.0",
+    "next": "16.2.4",
+    "nodemailer": "^8.0.7",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

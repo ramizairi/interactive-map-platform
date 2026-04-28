@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  /* Luxury glass system */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.08);
+  --glass-shadow-lg: 0 24px 64px rgba(15, 23, 42, 0.18), 0 4px 16px rgba(15, 23, 42, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --glass-bg: rgba(9, 9, 11, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+    --glass-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Luxury Scrollbar ─── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.15) transparent;
+}
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.15);
+  border-radius: 99px;
+}
+@media (prefers-color-scheme: dark) {
+  * { scrollbar-color: rgba(255, 255, 255, 0.12) transparent; }
+  *::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); }
+}
+
+/* ─── Mapbox controls glassmorphism ─── */
+.mapboxgl-ctrl-group,
+.mapboxgl-ctrl-scale {
+  border-radius: 12px !important;
+  border: 1px solid var(--glass-border) !important;
+  background: var(--glass-bg) !important;
+  box-shadow: var(--glass-shadow) !important;
+  backdrop-filter: blur(28px) saturate(1.6) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.6) !important;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease !important;
+}
+
+.mapboxgl-ctrl-group:hover {
+  box-shadow: var(--glass-shadow-lg) !important;
+}
+
+.mapboxgl-ctrl-group button {
+  background-color: transparent !important;
+  transition: background 0.15s ease !important;
+}
+
+.mapboxgl-ctrl-group button:hover {
+  background-color: rgba(15, 23, 42, 0.06) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .mapboxgl-ctrl-group,
+  .mapboxgl-ctrl-scale {
+    background: rgba(12, 12, 14, 0.78) !important;
+    border-color: rgba(255, 255, 255, 0.09) !important;
+    color: #f4f4f5 !important;
+  }
+
+  .mapboxgl-ctrl-group button:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+}
+
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl-bottom-left {
+  z-index: 15;
+}
+
+.mapboxgl-popup-content {
+  border-radius: 14px !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(24px) !important;
+  background: var(--glass-bg) !important;
+  box-shadow: var(--glass-shadow-lg) !important;
+}
+
+/* ─── Luxury panel base ─── */
+.luxury-panel {
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+/* ─── Smooth page transitions ─── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.18s ease both;
+}
