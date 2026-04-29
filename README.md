@@ -1,37 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Interactive Tunisia Map
+
+![Interactive Tunisia Map preview](./image.png)
+
+Interactive Tunisia Map is a premium Mapbox-powered discovery platform for Tunisia, starting with Nabeul. It combines a fast interactive map, MongoDB-backed places, ratings, reviews, user profiles, image uploads, and an admin approval workflow for community-submitted locations.
+
+## Features
+
+- Interactive Mapbox map focused on Nabeul, Tunisia
+- MongoDB places for hotels, restaurants, cafes, attractions, shopping, beaches, and more
+- Clustered place markers with category-specific icons and selected states
+- Vertical category filters and API-backed autocomplete search
+- Place detail panel with image gallery, ratings, comments, and directions
+- User authentication with public profiles and contribution stats
+- Add-place flow directly from the map by selecting a point
+- Pending place requests with admin approval/rejection
+- ImgBB image uploads for profile photos and place photos
+- Locked Tunisia regions shown as coming soon when zoomed out
+- Responsive light/dark UI with frosted map controls
+
+## Tech Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS
+- Mapbox GL JS
+- MongoDB
+- ImgBB uploads
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create `.env` from `.env.example` and fill in your local values:
+
+```bash
+cp .env.example .env
+```
+
+Required environment variables:
+
+```env
+NEXT_PUBLIC_MAPBOX_TOKEN=
+NEXT_PUBLIC_DEFAULT_REGION=Nabeul
+MONGODB_URI=
+MONGODB_DB=
+MONGODB_PLACES_COLLECTION=places
+MONGODB_REVIEWS_COLLECTION=reviews
+MONGODB_USERS_COLLECTION=users
+MONGODB_SESSIONS_COLLECTION=sessions
+MONGODB_PLACE_REQUESTS_COLLECTION=placeRequests
+ADMIN_EMAIL=
+IMGBB_API_KEY=
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Admin Workflow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Set `ADMIN_EMAIL` to the email address of the account that should approve places. When that user signs in, the app syncs the role to `admin`.
 
-## Learn More
+Admin moderation is available at:
 
-To learn more about Next.js, take a look at the following resources:
+```text
+/admin/places
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Approved places are inserted into the public `places` collection and appear on the map.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Useful Scripts
 
-## Deploy on Vercel
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run db:seed:capbon
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Repository Description
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# Interactive-Tunisia-Map
+A premium Mapbox and MongoDB interactive map platform for discovering Tunisia, starting with Nabeul, with user reviews, image uploads, place submissions, and admin moderation.

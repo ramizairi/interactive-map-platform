@@ -1,6 +1,7 @@
 {
-  "name": "map",
+  "name": "interactive-tunisia-map",
   "version": "0.1.0",
+  "description": "A premium Mapbox and MongoDB interactive map platform for discovering Tunisia, starting with Nabeul.",
   "private": true,
   "scripts": {
     "dev": "next dev",
