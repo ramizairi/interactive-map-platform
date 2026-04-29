@@ -87,6 +87,3 @@ npm run lint
 npm run db:seed:capbon
 ```
 
-## Repository Description
-
-A premium Mapbox and MongoDB interactive map platform for discovering Tunisia, starting with Nabeul, with user reviews, image uploads, place submissions, and admin moderation.
